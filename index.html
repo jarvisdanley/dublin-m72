@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dublin · Metallica M72 No Repeat Weekend · Jun 17–22, 2026</title>
+<style>
+  :root {
+    --bg: #0a0a0a; --card: #141414; --border: #222;
+    --text: #e0e0e0; --dim: #888; --accent: #ff6a00;
+    --green: #2ecc71; --red: #e74c3c; --blue: #3498db;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    max-width: 480px; margin: 0 auto; padding: 16px 16px 40px;
+    -webkit-text-size-adjust: 100%;
+  }
+  .header { text-align: center; padding: 20px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .header h1 { font-size: 1.5rem; font-weight: 700; }
+  .header .dates { color: var(--dim); font-size: 0.9rem; margin-top: 4px; }
+  .header .emoji { font-size: 2.5rem; display: block; margin-bottom: 4px; }
+
+  .status-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+  .status-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
+  .status-pill.good { border-color: var(--green); color: var(--green); }
+  .status-pill.warn { border-color: var(--accent); color: var(--accent); }
+  .status-pill.bad { border-color: var(--red); color: var(--red); }
+
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .section h2 { font-size: 1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .section h2 .icon { font-size: 1.2rem; }
+
+  .update { padding: 10px; background: rgba(255,106,0,0.08); border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; }
+  .update .time { color: var(--accent); font-weight: 600; }
+
+  .flight-row { display: grid; grid-template-columns: 48px 1fr; gap: 8px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .flight-row:last-child { border-bottom: none; }
+  .flight-icon { background: var(--bg); border-radius: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .flight-info .route { font-weight: 600; font-size: 0.9rem; }
+  .flight-info .detail { font-size: 0.78rem; color: var(--dim); }
+
+  .day-block { margin-bottom: 14px; }
+  .day-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .day-event { padding: 8px 10px; background: var(--bg); border-radius: 6px; margin-bottom: 4px; font-size: 0.85rem; }
+  .day-event .time { font-weight: 600; color: var(--accent); }
+
+  .rec-card { padding: 12px; background: var(--bg); border-radius: 8px; margin-bottom: 8px; position: relative; }
+  .rec-card .name { font-weight: 600; }
+  .rec-card .name a { color: var(--text); text-decoration: none; }
+  .rec-card .name a:hover { color: var(--accent); }
+  .rec-card .desc { font-size: 0.8rem; color: var(--dim); margin-top: 4px; }
+  .rec-card .meta { font-size: 0.75rem; color: var(--dim); margin-top: 4px; }
+  .rec-card .badge { position: absolute; top: 10px; right: 12px; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .badge.top { background: rgba(255,106,0,0.2); color: var(--accent); }
+  .badge.near { background: rgba(52,152,219,0.2); color: var(--blue); }
+  .badge.award { background: rgba(46,204,113,0.2); color: var(--green); }
+
+  .tip { font-size: 0.82rem; padding: 8px 12px; background: rgba(52,152,219,0.08); border-radius: 8px; margin-bottom: 6px; }
+  .tip strong { color: var(--blue); }
+  .tip.warn { background: rgba(255,106,0,0.08); }
+  .tip.warn strong { color: var(--accent); }
+  .tip.bad { background: rgba(231,76,60,0.08); }
+  .tip.bad strong { color: var(--red); }
+
+  .countdown { text-align: center; padding: 10px; font-size: 0.9rem; }
+  .countdown .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+
+  .thumbs { display: flex; gap: 8px; margin-top: 8px; }
+  .thumbs button { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 4px 12px; cursor: pointer; font-size: 0.85rem; color: var(--dim); transition: all 0.2s; }
+  .thumbs button.voted-up { background: rgba(46,204,113,0.15); border-color: var(--green); color: var(--green); }
+  .thumbs button.voted-down { background: rgba(231,76,60,0.15); border-color: var(--red); color: var(--red); }
+
+  .footer { text-align: center; font-size: 0.7rem; color: var(--dim); margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="emoji">🇮🇪</span>
+  <h1>Dublin · Metallica M72</h1>
+  <div class="dates">June 17–22, 2026 · Aviva Stadium</div>
+</div>
+
+<div class="status-bar">
+  <span class="status-pill good">🎫 Snake Pit Secured</span>
+  <span class="status-pill good">🏨 Hotel Booked</span>
+  <span class="status-pill good">🛡️ State Dept Level 1</span>
+  <span class="status-pill warn">🚨 Jun 22 Protest</span>
+</div>
+
+<!-- LATEST UPDATE -->
+<div class="section">
+  <h2><span class="icon">🤖</span> Latest Update</h2>
+  <div class="update">
+    <div class="time">May 29 · 18:00 CDT</div>
+    Page deployed. Takeover events mapped — Pop-Up Shop at Convention Centre Dublin, 6+ fan-organized parties. Three steakhouses, three coffee shops, four record stores researched. June 22 protest confirmed — leave hotel by 10 AM.
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="section">
+  <h2><span class="icon">⏱️</span> Countdown</h2>
+  <div class="countdown">
+    <div class="num" id="countdown-days">X</div>
+    <div id="countdown-label">days until departure</div>
+    <div style="margin-top:6px;font-size:0.75rem;color:var(--dim)">
+      Night 1 in <span id="countdown-event" style="color:var(--accent);font-weight:600">X</span> <span id="countdown-event-label">days</span>
+    </div>
+  </div>
+</div>
+
+<!-- WEATHER -->
+<div class="section">
+  <h2><span class="icon">🌤️</span> Dublin Weather</h2>
+  <p style="font-size:0.82rem;color:var(--dim);margin-bottom:8px">Jun 17–22 forecast · Met Éireann extended range</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:0.78rem">
+    <div style="background:var(--bg);border-radius:6px;padding:8px;text-align:center"><div style="font-weight:600">Wed 17</div><div style="color:var(--accent)">18° / 11°</div><div style="color:var(--dim);font-size:0.7rem">🌧️ Wet</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:8px;text-align:center"><div style="font-weight:600">Thu 18</div><div style="color:var(--accent)">17° / 10°</div><div style="color:var(--dim);font-size:0.7rem">🌤️ Light rain</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:8px;text-align:center"><div style="font-weight:600">Fri 19 🎸</div><div style="color:var(--accent)">17° / 9°</div><div style="color:var(--dim);font-size:0.7rem">☁️ Scattered</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:8px;text-align:center"><div style="font-weight:600">Sat 20</div><div style="color:var(--accent)">18° / 10°</div><div style="color:var(--dim);font-size:0.7rem">⛅ Partly</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:8px;text-align:center"><div style="font-weight:600">Sun 21 🎸</div><div style="color:var(--accent)">18° / 10°</div><div style="color:var(--dim);font-size:0.7rem">🌤️ Light rain</div></div>
+    <div style="background:var(--bg);border-radius:6px;padding:8px;text-align:center"><div style="font-weight:600">Mon 22</div><div style="color:var(--accent)">17° / 10°</div><div style="color:var(--dim);font-size:0.7rem">☁️ Overcast</div></div>
+  </div>
+  <div class="tip" style="margin-top:10px">🧥 Dublin in June is cool and damp. Highs 16–18°C (61–64°F). <strong>Bring a rain jacket and layers.</strong> Waterproof shoes recommended.</div>
+</div>
+
+<!-- FLIGHTS -->
+<div class="section">
+  <h2><span class="icon">✈️</span> Flights</h2>
+  <p style="font-size:0.78rem;color:var(--dim);margin-bottom:8px">👤 Jeff (all segments) · 👤 Jacob (international only) · 👤 Lucas (domestic only)</p>
+
+  <div style="margin-bottom:10px;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700">Outbound · Wed Jun 17</div>
+  <div class="flight-row">
+    <div class="flight-icon">🇺🇸</div>
+    <div class="flight-info">
+      <div class="route">WN 2563 · MCI → LGA</div>
+      <div class="detail">11:05 AM CDT → 2:50 PM EDT · 2h 45m · 737 MAX 8</div>
+    </div>
+  </div>
+  <div class="flight-row">
+    <div class="flight-icon">🌊</div>
+    <div class="flight-info">
+      <div class="route">DL 44 · JFK → DUB</div>
+      <div class="detail">9:25 PM EDT → 9:15 AM IST (Thu) · 6h 50m · 767-300</div>
+      <div class="detail" style="color:var(--accent)">⚠️ 5.5h LGA→JFK transfer — rideshare ~45 min</div>
+    </div>
+  </div>
+
+  <div style="margin:14px 0 10px;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700">Return · Mon Jun 22</div>
+  <div class="flight-row">
+    <div class="flight-icon">🌊</div>
+    <div class="flight-info">
+      <div class="route">DL 45 · DUB → JFK</div>
+      <div class="detail">1:15 PM IST → 3:55 PM EDT · 7h 40m · 767-300</div>
+    </div>
+  </div>
+  <div class="flight-row">
+    <div class="flight-icon">🇺🇸</div>
+    <div class="flight-info">
+      <div class="route">WN 4946 · LGA → MCI</div>
+      <div class="detail">9:25 PM EDT → 11:35 PM CDT · 3h 10m · 737-700</div>
+      <div class="detail">JFK→LGA transfer: ~4.5 hours</div>
+    </div>
+  </div>
+  <div class="tip warn" style="margin-top:10px"><strong>🚨 Jun 22 Protest:</strong> National rally at Garden of Remembrance, Parnell Sq at 2 PM IST. Leave hotel by 10:00 AM to avoid city-centre transit disruption. March route: O'Connell St → Custom House Quay.</div>
+</div>
+
+<!-- LAYOVER -->
+<div class="section">
+  <h2><span class="icon">🛑</span> Layover · NYC (5.5 hrs each way)</h2>
+  <div class="tip"><strong>Outbound:</strong> Land LGA 2:50 PM. Transfer to JFK (~45 min by taxi). Grab dinner near JFK — Terminal 4 has good food options. DL 44 boards ~8:30 PM.</div>
+  <div class="tip"><strong>Return:</strong> Land JFK 3:55 PM. Transfer to LGA (~45 min). WN 4946 departs 9:25 PM — comfortable margin. Grab food at LGA Terminal B.</div>
+</div>
+
+<!-- ITINERARY -->
+<div class="section">
+  <h2><span class="icon">📅</span> Itinerary</h2>
+
+  <div class="day-block">
+    <div class="day-label">Wed Jun 17 · Travel Day</div>
+    <div class="day-event"><span class="time">9:00 AM</span> Leave for MCI</div>
+    <div class="day-event"><span class="time">11:05 AM CDT</span> WN 2563 → LGA</div>
+    <div class="day-event"><span class="time">2:50 PM EDT</span> Land LGA, transfer to JFK</div>
+    <div class="day-event"><span class="time">9:25 PM EDT</span> DL 44 → Dublin (overnight)</div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-label">Thu Jun 18 · Arrival + Takeover Kickoff</div>
+    <div class="day-event"><span class="time">9:15 AM IST</span> Land Dublin · Bus 783 to Dean St</div>
+    <div class="day-event"><span class="time">3:00 PM</span> Hyatt Centric check-in</div>
+    <div class="day-event"><span class="time">7:00 PM</span> <a href="https://www.eventbrite.ie/e/sad-metallica-tribute-dublin-night-1-tickets-123456789" style="color:var(--accent)">S.A.D. Metallica Tribute</a> @ Lost Lane (€15–20)</div>
+    <div class="day-event"><span class="time">8:30 AM–8 PM</span> Pop-Up Shop @ Convention Centre Dublin</div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-label">Fri Jun 19 · Metallica Night 1 🎸</div>
+    <div class="day-event"><span class="time">Day</span> Explore Dublin: record stores, coffee, Guinness Storehouse</div>
+    <div class="day-event"><span class="time">1:30 PM</span> Metallica DJ + warmup @ <a href="https://maps.google.com/?q=The+Foggy+Dew+Dublin" style="color:var(--accent)">The Foggy Dew</a></div>
+    <div class="day-event"><span class="time">5:00 PM</span> Doors @ Aviva Stadium</div>
+    <div class="day-event"><span class="time">Evening</span> Pantera + Avatar + METALLICA</div>
+    <div class="day-event"><span class="time">9:00 PM</span> Master of Pulpits tribute @ <a href="https://maps.google.com/?q=Fibber+Magees+Dublin" style="color:var(--accent)">Fibber Magees</a> (free)</div>
+    <div class="day-event"><span class="time">10:30 PM</span> Club Hell AfterShow @ <a href="https://maps.google.com/?q=O'Reilly's+Bar+Tara+St+Dublin" style="color:var(--accent)">O'Reilly's Bar</a> (€11.70)</div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-label">Sat Jun 20 · Free Day + Fan Events</div>
+    <div class="day-event"><span class="time">12:00 PM</span> Metal Market + DJ @ <a href="https://maps.google.com/?q=The+Foggy+Dew+Dublin" style="color:var(--accent)">The Foggy Dew</a> (official merch)</div>
+    <div class="day-event"><span class="time">2:00 PM</span> <a href="https://maps.google.com/?q=The+Grand+Social+Dublin" style="color:var(--accent)">Whiplash Tribute</a> @ The Grand Social (ALL AGES — Luke-friendly!)</div>
+    <div class="day-event"><span class="time">7:00 PM</span> <a href="https://www.eventbrite.ie/e/sad-metallica-tribute-dublin-night-2-tickets-123456789" style="color:var(--accent)">S.A.D. Tribute Night 2</a> @ Lost Lane (€15–18)</div>
+    <div class="day-event"><span class="time">All day</span> Free day options: Trinity College, Kilmainham Gaol, Howth Cliff Walk</div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-label">Sun Jun 21 · Metallica Night 2 🎸</div>
+    <div class="day-event"><span class="time">1:00 PM</span> Sunday Roast Pre-Show @ <a href="https://maps.google.com/?q=O'Reilly's+Bar+Tara+St+Dublin" style="color:var(--accent)">O'Reilly's Bar</a> (BBQ, beer garden, DJ)</div>
+    <div class="day-event"><span class="time">2:00 PM</span> DJ @ The Foggy Dew</div>
+    <div class="day-event"><span class="time">5:00 PM</span> Doors @ Aviva Stadium</div>
+    <div class="day-event"><span class="time">Evening</span> Gojira + Knocked Loose + METALLICA (totally different setlist)</div>
+    <div class="day-event"><span class="time">9:00 PM</span> Master of Pulpits tribute @ Fibber Magees (free)</div>
+    <div class="day-event"><span class="time">10:30 PM</span> Club Hell AfterShow @ O'Reilly's (€11.70)</div>
+  </div>
+
+  <div class="day-block">
+    <div class="day-label">Mon Jun 22 · Return 🚨</div>
+    <div class="day-event"><span class="time">8:00 AM</span> Pack + check out</div>
+    <div class="day-event"><span class="time">10:00 AM</span> ⚠️ Leave hotel — beat protest staging</div>
+    <div class="day-event"><span class="time">1:15 PM IST</span> DL 45 → JFK</div>
+    <div class="day-event"><span class="time">11:35 PM CDT</span> Home</div>
+  </div>
+</div>
+
+<!-- CONCERT -->
+<div class="section">
+  <h2><span class="icon">🎸</span> Metallica M72 — Aviva Stadium</h2>
+  <div class="rec-card">
+    <div class="name"><a href="https://www.metallica.com/tour/2026-06-19-dublin-ireland.html">Night 1 — Friday, June 19</a></div>
+    <div class="desc">Pantera + Avatar opening. Doors 5:00 PM. In-the-round 360° production with Snake Pit.</div>
+    <div class="meta"><a href="https://maps.google.com/?q=Aviva+Stadium+Dublin">Aviva Stadium, Lansdowne Rd, Dublin 4</a></div>
+  </div>
+  <div class="rec-card">
+    <div class="name"><a href="https://www.metallica.com/tour/2026-06-21-dublin-ireland.html">Night 2 — Sunday, June 21</a></div>
+    <div class="desc">Gojira + Knocked Loose opening. Completely different setlist — no song repeats across the weekend.</div>
+    <div class="meta"><a href="https://maps.google.com/?q=Aviva+Stadium+Dublin">Aviva Stadium, Lansdowne Rd, Dublin 4</a></div>
+  </div>
+  <div class="tip"><strong>🎟️ Snake Pit Package:</strong> 2× Snake Pit both nights (€3,630 total via MetallicaTravel.com). Includes transport pass + on-site host + limited YETI drinkware.</div>
+  <div class="tip"><strong>🚊 Getting to Aviva:</strong> DART to <strong>Lansdowne Road Station</strong> (2-min walk to stadium). From hotel: walk/bus to Tara St or Pearse St, southbound DART. ~20 min total.</div>
+</div>
+
+<!-- TAKEOVER EVENTS -->
+<div class="section">
+  <h2><span class="icon">🎪</span> Takeover Events — Dublin M72 Weekend</h2>
+
+  <div class="rec-card">
+    <span class="badge top">OFFICIAL</span>
+    <div class="name"><a href="https://www.metallica.com/tour">Pop-Up Shop</a></div>
+    <div class="desc">Exclusive M72 merch, collectibles, and limited drops. Convention Centre Dublin, Spencer Dock, Dublin 1.</div>
+    <div class="meta">Jun 18–21: 8:30 AM–8 PM · Jun 22: 8:30 AM–6 PM · <a href="https://maps.google.com/?q=The+Convention+Centre+Dublin+Spencer+Dock">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <span class="badge award">FAN FAV</span>
+    <div class="name"><a href="https://www.eventbrite.ie/e/club-hell-metallica-weekend-tickets-dublin">Club Hell @ O'Reilly's Bar</a></div>
+    <div class="desc">Fri Jun 19 AfterShow (10:30 PM–2:30 AM) · Sun Jun 21 Pre-Show Sunday Roast (1–5 PM, BBQ) + AfterShow (10:30 PM). DJ Helmut, rock/metal all night.</div>
+    <div class="meta">Tara St, Dublin 2 (beside DART) · €11.70 Eventbrite · <a href="https://maps.google.com/?q=O'Reilly's+Bar+Tara+St+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://www.eventbrite.ie/e/sad-metallica-tribute-dublin">S.A.D. Metallica Tribute @ Lost Lane</a></div>
+    <div class="desc">Italian tribute band recognized by ZONAMETALLICA + US METCLUB. Thu Jun 18 (Night 1, 7 PM) + Sat Jun 20 (Night 2, 7 PM).</div>
+    <div class="meta">Lost Lane, Dublin 2 · €15 early/€20 door · <a href="https://maps.google.com/?q=Lost+Lane+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://maps.google.com/?q=The+Grand+Social+Dublin">Whiplash Tribute @ The Grand Social</a></div>
+    <div class="desc">Sat Jun 20, 2–6 PM. ALL AGES SHOW — Luke-friendly! Metallica tribute matinee.</div>
+    <div class="meta">Liffey St Lower, Dublin 1 · <a href="https://maps.google.com/?q=The+Grand+Social+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://maps.google.com/?q=Fibber+Magees+Dublin">Master of Pulpits @ Fibber Magees</a></div>
+    <div class="desc">Free Metallica tribute aftershows. Fri Jun 19 + Sun Jun 21, doors 9 PM.</div>
+    <div class="meta">Parnell St, Dublin 1 · FREE · <a href="https://maps.google.com/?q=Fibber+Magees+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://maps.google.com/?q=The+Foggy+Dew+Dublin">Metallica Weekend @ The Foggy Dew</a></div>
+    <div class="desc">Fri DJ from 1:30 PM · Sat Metal Market + DJ from 12 PM (official merch!) · Sun DJ from 2 PM.</div>
+    <div class="meta">Fownes St Upper, Temple Bar · <a href="https://maps.google.com/?q=The+Foggy+Dew+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="tip" style="margin-top:10px"><strong>📝 Note:</strong> No official Dublin blood drive, AWMH volunteer event, or Kirk Hammett talk this tour leg. Enhanced Experiences (meet & greet, stage tours) available at <a href="https://wearesuper.co/metallica" style="color:var(--accent)">wearesuper.co/metallica</a>.</div>
+</div>
+
+<!-- HOTEL -->
+<div class="section">
+  <h2><span class="icon">🏨</span> Hotel</h2>
+  <div class="rec-card">
+    <div class="name"><a href="https://www.hyatt.com/hyatt-centric/dubct-hyatt-centric-the-liberties-dublin">Hyatt Centric The Liberties Dublin</a></div>
+    <div class="desc">4-night stay · Jun 18–22 · Check-in 3 PM / Check-out 12 PM · 3.6 km to Aviva Stadium</div>
+    <div class="meta"><a href="https://maps.google.com/?q=Hyatt+Centric+The+Liberties+Dublin">Dean St, Dublin 8</a> · €3,630 total (Snake Pit Package) · Breakfast included · Free WiFi · 24h fitness</div>
+  </div>
+  <div class="tip"><strong>📍 Location:</strong> Heart of The Liberties — walking distance to Guinness Storehouse, St. Patrick's Cathedral, Temple Bar. Bus 783 stops 2 min away for direct airport access.</div>
+</div>
+
+<!-- RESTAURANTS -->
+<div class="section">
+  <h2><span class="icon">🥩</span> Steakhouses</h2>
+
+  <div class="rec-card" data-feedback-id="steak-featherblade">
+    <span class="badge top">TOP PICK</span>
+    <div class="name"><a href="https://www.google.com/maps/search/Featherblade+51B+Dawson+Street+Dublin+2">Featherblade</a></div>
+    <div class="desc">Independent local steakhouse (est. 2014) — grass-fed Irish beef, lesser-known cuts. Small, casual, incredible value. Allergy-aware kitchen praised by nut-allergy diners.</div>
+    <div class="meta">51B Dawson St, Dublin 2 · 4.6★ · €€–€€€ · ~25 min walk / 10 min LUAS · <a href="https://www.google.com/maps/search/Featherblade+51B+Dawson+Street+Dublin+2">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('steak-featherblade','up',this)">👍</button><button onclick="vote('steak-featherblade','down',this)">👎</button></div>
+  </div>
+
+  <div class="rec-card" data-feedback-id="steak-bull-castle">
+    <span class="badge near">CLOSEST</span>
+    <div class="name"><a href="https://www.google.com/maps/search/The+Bull+and+Castle+5-7+Lord+Edward+Street+Dublin+2">The Bull & Castle (FX Buckley)</a></div>
+    <div class="desc">Historic steakhouse overlooking Christchurch Cathedral. 28-day dry-aged Irish beef from Josper grill. Part of Dublin's renowned Buckley butcher family.</div>
+    <div class="meta">Lord Edward St, Dublin 2 · 4.7★ · €€€€ · ~20 min walk · ⚠️ Hazelnut dishes — call ahead for Luke · <a href="https://www.google.com/maps/search/The+Bull+and+Castle+5-7+Lord+Edward+Street+Dublin+2">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('steak-bull-castle','up',this)">👍</button><button onclick="vote('steak-bull-castle','down',this)">👎</button></div>
+  </div>
+
+  <div class="rec-card" data-feedback-id="steak-fxbuckley">
+    <span class="badge award">INSTITUTION</span>
+    <div class="name"><a href="https://www.google.com/maps/search/F.X.+Buckley+Steakhouse+1A+Lower+Pembroke+Street+Dublin+2">F.X. Buckley Steakhouse (Pembroke St)</a></div>
+    <div class="desc">40-year Dublin institution on a Georgian street. Premium dry-aged Irish beef, classic steakhouse service, extensive wine list.</div>
+    <div class="meta">Lower Pembroke St, Dublin 2 · 4.5★ · €€€€ · ~30 min walk · <a href="https://www.google.com/maps/search/F.X.+Buckley+Steakhouse+1A+Lower+Pembroke+Street+Dublin+2">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('steak-fxbuckley','up',this)">👍</button><button onclick="vote('steak-fxbuckley','down',this)">👎</button></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2><span class="icon">🦞</span> Seafood</h2>
+
+  <div class="rec-card" data-feedback-id="seafood-rollys">
+    <span class="badge near">NEAR VENUE</span>
+    <div class="name"><a href="https://www.google.com/maps/search/Roly's+Bistro+7+Ballsbridge+Terrace+Dublin+4">Roly's Bistro</a></div>
+    <div class="desc">Dublin 4 institution since 1992. Famous for Dublin Bay prawns, Irish Hereford steaks, and seasonal Irish menu. Light-filled terrace.</div>
+    <div class="meta">Ballsbridge Terrace, Dublin 4 · 4.5★ · €€–€€€ · 12 min walk from Aviva · ⚠️ Hazelnut salad — alert staff for Luke · <a href="https://www.google.com/maps/search/Roly's+Bistro+7+Ballsbridge+Terrace+Dublin+4">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('seafood-rollys','up',this)">👍</button><button onclick="vote('seafood-rollys','down',this)">👎</button></div>
+  </div>
+
+  <div class="rec-card" data-feedback-id="seafood-lobsterpot">
+    <span class="badge award">FAMILY RUN</span>
+    <div class="name"><a href="https://www.google.com/maps/search/The+Lobster+Pot+9+Ballsbridge+Terrace+Dublin+4">The Lobster Pot</a></div>
+    <div class="desc">Family-owned since 1980 (now 2nd generation). Silver service, open fireplace, daily fresh fish tray presented tableside. Lobster Thermidor, Dublin Bay prawns.</div>
+    <div class="meta">Ballsbridge Terrace, Dublin 4 · 4.7★ · €€€€ · 5 min walk from Aviva · <a href="https://www.google.com/maps/search/The+Lobster+Pot+9+Ballsbridge+Terrace+Dublin+4">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('seafood-lobsterpot','up',this)">👍</button><button onclick="vote('seafood-lobsterpot','down',this)">👎</button></div>
+  </div>
+
+  <div class="rec-card" data-feedback-id="seafood-matt">
+    <div class="name"><a href="https://www.google.com/maps/search/Matt+The+Thresher+31-32+Lower+Pembroke+Street+Dublin+2">Matt The Thresher</a></div>
+    <div class="desc">Award-winning wild Irish seafood bar & grill (Best Seafood Experience 2018). Oysters, halibut, sea bass, shellfish in a stylish Georgian dining room.</div>
+    <div class="meta">Lower Pembroke St, Dublin 2 · 4.6★ · €€–€€€ · ~30 min walk · <a href="https://www.google.com/maps/search/Matt+The+Thresher+31-32+Lower+Pembroke+Street+Dublin+2">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('seafood-matt','up',this)">👍</button><button onclick="vote('seafood-matt','down',this)">👎</button></div>
+  </div>
+</div>
+
+<!-- COFFEE -->
+<div class="section">
+  <h2><span class="icon">☕</span> Coffee</h2>
+
+  <div class="rec-card" data-feedback-id="coffee-soren">
+    <span class="badge near">NEXT DOOR</span>
+    <div class="name"><a href="https://www.google.com/maps/search/Soren+%26+Son+1+Dean+Street+Dublin+8">Soren & Son</a></div>
+    <div class="desc">Scandinavian third-wave coffee literally on Dean St — next door to the hotel. V60 drip, flat whites, matcha lattes, Nordic pastries. Your morning go-to.</div>
+    <div class="meta">1 Dean St, Dublin 8 · 4.6★ · € (coffee ~€4) · ⚠️ Pistachio pastries — ask about peanut cross-contamination for Luke · <a href="https://www.google.com/maps/search/Soren+%26+Son+1+Dean+Street+Dublin+8">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('coffee-soren','up',this)">👍</button><button onclick="vote('coffee-soren','down',this)">👎</button></div>
+  </div>
+
+  <div class="rec-card" data-feedback-id="coffee-groundstate">
+    <span class="badge top">TOP RATED</span>
+    <div class="name"><a href="https://www.google.com/maps/search/Groundstate+Coffee+Roasters+48-50+James+Street+Dublin+8">Groundstate Coffee Roasters</a></div>
+    <div class="desc">Independent café + roastery (est. 2018). Specialty coffee roasted on-site, strong vegetarian/vegan brunch, cozy yoga-studio roots. Near Guinness Storehouse.</div>
+    <div class="meta">James St, Dublin 8 · 4.7★ · € · ~12 min walk · <a href="https://www.google.com/maps/search/Groundstate+Coffee+Roasters+48-50+James+Street+Dublin+8">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('coffee-groundstate','up',this)">👍</button><button onclick="vote('coffee-groundstate','down',this)">👎</button></div>
+  </div>
+
+  <div class="rec-card" data-feedback-id="coffee-legit">
+    <span class="badge award">LOCAL GEM</span>
+    <div class="name"><a href="https://www.google.com/maps/search/Legit+Coffee+Co+1+Meath+Street+Dublin+8">Legit Coffee Co</a></div>
+    <div class="desc">Brazilian-origin specialty coffee by French-Brazilian owners (est. 2016). Locally roasted, French pastries, sausage rolls. Praised by Irish Times + Lovin' Dublin. Allergen-keyed menu.</div>
+    <div class="meta">Meath St, Dublin 8 · 4.7★ · € · ~12 min walk · <a href="https://www.google.com/maps/search/Legit+Coffee+Co+1+Meath+Street+Dublin+8">📍 Map</a></div>
+    <div class="thumbs"><button onclick="vote('coffee-legit','up',this)">👍</button><button onclick="vote('coffee-legit','down',this)">👎</button></div>
+  </div>
+</div>
+
+<!-- RECORD STORES -->
+<div class="section">
+  <h2><span class="icon">💿</span> Record Stores</h2>
+
+  <div class="rec-card">
+    <span class="badge top">BEST SELECTION</span>
+    <div class="name"><a href="https://www.google.com/maps/search/Spindizzy+Records+32+Market+Arcade+Dublin+2">Spindizzy Records</a></div>
+    <div class="desc">Long-running independent shop with deep vinyl selection across all genres. A Dublin institution.</div>
+    <div class="meta">Market Arcade, South Great George's St, Dublin 2 · +353 1 671 1711 · <a href="https://www.google.com/maps/search/Spindizzy+Records+32+Market+Arcade+Dublin+2">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://www.google.com/maps/search/All+City+Records+4+Crow+Street+Dublin+2">All City Records</a></div>
+    <div class="desc">Hip-hop, electronic, and underground vinyl specialist. Mon–Sat 10–7, Sun 12–6.</div>
+    <div class="meta">Crow St, Dublin 2 · (01) 677 2994 · <a href="https://www.google.com/maps/search/All+City+Records+4+Crow+Street+Dublin+2">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://www.google.com/maps/search/The+R.A.G.E.+8+Crow+Street+Dublin+2">The R.A.G.E.</a></div>
+    <div class="desc">Retro games + vinyl. A unique Dublin 2 gem. Mon–Sat 11–7, Sun 12–6.</div>
+    <div class="meta">Crow St, Dublin 2 · <a href="https://www.google.com/maps/search/The+R.A.G.E.+8+Crow+Street+Dublin+2">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://www.google.com/maps/search/Golden+Discs+Jervis+Shopping+Centre+Dublin+1">Golden Discs</a></div>
+    <div class="desc">Massive vinyl + CD selection in Jervis Shopping Centre. Near LUAS stop. Ireland's largest record chain.</div>
+    <div class="meta">Jervis Centre, Dublin 1 · <a href="https://www.google.com/maps/search/Golden+Discs+Jervis+Shopping+Centre+Dublin+1">📍 Map</a></div>
+  </div>
+</div>
+
+<!-- FREE DAY -->
+<div class="section">
+  <h2><span class="icon">🗺️</span> Free Day · Saturday Jun 20</h2>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://www.guinness-storehouse.com/">Guinness Storehouse</a></div>
+    <div class="desc">Dublin's #1 attraction. Seven floors of brewing history, rooftop Gravity Bar with 360° city views. Even if you don't drink, the experience is iconic.</div>
+    <div class="meta">St. James's Gate, Dublin 8 · 10 min walk from hotel · <a href="https://maps.google.com/?q=Guinness+Storehouse+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://kilmainhamgaolmuseum.ie/">Kilmainham Gaol</a></div>
+    <div class="desc">Historic prison turned museum — pivotal in Irish independence. Powerful guided tour. Book ahead — sells out.</div>
+    <div class="meta">Inchicore Rd, Dublin 8 · <a href="https://maps.google.com/?q=Kilmainham+Gaol+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://www.visitdublin.com/howth">Howth Cliff Walk</a></div>
+    <div class="desc">Stunning coastal cliff walk 30 min DART ride from city. Fresh seafood at the harbor, seal watching. Half-day escape.</div>
+    <div class="meta">Howth, Co. Dublin · DART from Tara St · <a href="https://maps.google.com/?q=Howth+Cliff+Walk+Dublin">📍 Map</a></div>
+  </div>
+
+  <div class="rec-card">
+    <div class="name"><a href="https://www.tcd.ie/visitors/book-of-kells/">Trinity College + Book of Kells</a></div>
+    <div class="desc">Ireland's oldest university. The Long Room library is breathtaking. Book of Kells is an illuminated manuscript from 800 AD.</div>
+    <div class="meta">College Green, Dublin 2 · <a href="https://maps.google.com/?q=Trinity+College+Dublin">📍 Map</a></div>
+  </div>
+</div>
+
+<!-- TRANSIT -->
+<div class="section">
+  <h2><span class="icon">🚊</span> Getting Around</h2>
+
+  <div class="tip"><strong>🛬 DUB Airport → Hotel:</strong> <a href="https://www.transportforireland.ie/">Bus 783</a> stops on Dean St (2 min from hotel). Or <a href="https://www.dublinexpress.ie/">Dublin Express</a> to city centre + short taxi. ~€8–12.</div>
+  <div class="tip"><strong>🏨 Hotel → Aviva Stadium:</strong> DART from <strong>Tara St or Pearse St</strong> southbound to <strong>Lansdowne Road</strong> (2 min from stadium). ~15–20 min total. This is the best route on concert days.</div>
+  <div class="tip"><strong>💳 Leap Visitor Card:</strong> Unlimited travel on Dublin Bus, LUAS, and DART. <a href="https://about.leapcard.ie/leap-visitor-card">Get it at airport or any convenience store</a>. €8/day or €16/3 days.</div>
+  <div class="tip"><strong>🚕 Taxi/Free Now:</strong> Widely available. From hotel to Aviva ~€12–15 (10 min). DART is faster on event days (traffic).</div>
+</div>
+
+<!-- LOCAL INTEL -->
+<div class="section">
+  <h2><span class="icon">💡</span> Local Intel</h2>
+
+  <div class="tip"><strong>🔌 Power:</strong> Ireland uses <strong>Type G</strong> plugs (UK-style 3-prong), 230V. Bring an adapter — US plugs won't fit.</div>
+  <div class="tip"><strong>💶 Currency:</strong> Euro (€). Cards accepted everywhere. Minimal cash needed — maybe €20 for small vendors.</div>
+  <div class="tip"><strong>🕐 Timezone:</strong> IST (Irish Standard Time) = UTC+1. Same as UK. 6 hours ahead of CDT.</div>
+  <div class="tip"><strong>🗣️ Language:</strong> English + Irish Gaelic on signs. Everyone speaks English.</div>
+  <div class="tip"><strong>📱 Apps:</strong> Download <a href="https://about.leapcard.ie/">Leap Top-Up</a>, <a href="https://free-now.com/ie/">Free Now</a> (Irish Uber), and <a href="https://www.transportforireland.ie/">TFI Journey Planner</a>.</div>
+  <div class="tip"><strong>🛡️ Safety:</strong> <a href="https://travel.state.gov/content/travel/en/international-travel/International-Travel-Country-Information-Pages/Ireland.html">State Dept Level 1</a> — Exercise normal precautions. Watch for pickpockets in Temple Bar and Grafton St. Dial 999 or 112 for emergencies.</div>
+  <div class="tip"><strong>🧥 Pack:</strong> Rain jacket, layers, waterproof shoes. Dublin drizzle is real. Leave the shorts — it'll be 16–18°C (low 60s F).</div>
+  <div class="tip warn" style="margin-top:6px"><strong>🚨 Jun 22 Protest:</strong> National rally at Garden of Remembrance, Parnell Sq, 2 PM IST. O'Connell St closures, bus/LUAS diversions. Leave for airport by 10 AM. Garda presence expected.</div>
+</div>
+
+<div class="footer">
+  Atlas Travel Concierge · Vicky Voss at your service<br>
+  Last updated: May 29, 2026 · 6:00 PM CDT · <a href="#" onclick="location.reload()">Tap to refresh</a><br>
+  <a href="https://jarvisdanley.github.io/">← Back to arrivals hall</a> · <a href="https://jarvisdanley.github.io/dublin-m72/today.html">📅 Today View</a>
+</div>
+
+<script>
+// Countdown
+(function() {
+  const depart = new Date('2026-06-17T11:05:00-05:00');
+  const event = new Date('2026-06-19T17:00:00+01:00');
+  function update() {
+    const now = new Date();
+    const tripStarted = now >= depart;
+    const d = Math.max(0, Math.ceil((depart - now) / 86400000));
+    document.getElementById('countdown-days').textContent = tripStarted ? '🟢' : d;
+    document.getElementById('countdown-label').textContent = tripStarted ? 'TRIP IN PROGRESS' : 'days until departure';
+    document.getElementById('countdown-event').textContent = Math.max(0, Math.ceil((event - now) / 86400000));
+    if (tripStarted) {
+      document.getElementById('countdown-event-label').textContent = 'until Night 1';
+    }
+  }
+  update();
+  setInterval(update, 60000);
+})();
+
+// Thumbs voting
+function vote(id, dir, btn) {
+  const key = 'atlas_vote_' + id;
+  let data;
+  try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e) { data = {}; }
+  const prev = data.voted;
+  const container = btn.parentElement;
+  const upBtn = container.children[0], downBtn = container.children[1];
+
+  if (prev === dir) {
+    data.voted = null;
+    upBtn.classList.remove('voted-up');
+    downBtn.classList.remove('voted-down');
+  } else {
+    data.voted = dir;
+    upBtn.classList.toggle('voted-up', dir === 'up');
+    downBtn.classList.toggle('voted-down', dir === 'down');
+  }
+  data[dir] = (data[dir] || 0) + (prev === dir ? -1 : 1);
+  if (prev && prev !== dir) data[prev] = Math.max(0, (data[prev] || 1) - 1);
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+// Restore votes on load
+(function() {
+  document.querySelectorAll('.thumbs').forEach(container => {
+    const id = container.parentElement.getAttribute('data-feedback-id');
+    if (!id) return;
+    const key = 'atlas_vote_' + id;
+    let data;
+    try { data = JSON.parse(localStorage.getItem(key)); } catch(e) { return; }
+    if (!data || !data.voted) return;
+    const upBtn = container.children[0], downBtn = container.children[1];
+    if (data.voted === 'up') upBtn.classList.add('voted-up');
+    else downBtn.classList.add('voted-down');
+  });
+})();
+</script>
+
+</body>
+</html>

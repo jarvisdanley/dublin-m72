@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Today · Dublin M72</title>
+<style>
+  :root {
+    --bg: #0a0a0a; --card: #141414; --border: #222;
+    --text: #e0e0e0; --dim: #888; --accent: #ff6a00;
+    --green: #2ecc71; --red: #e74c3c; --blue: #3498db;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    max-width: 480px; margin: 0 auto; padding: 16px 16px 40px;
+    -webkit-text-size-adjust: 100%;
+  }
+  .header { text-align: center; padding: 20px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .header h1 { font-size: 1.3rem; font-weight: 700; }
+  .header .sub { color: var(--dim); font-size: 0.85rem; margin-top: 4px; }
+
+  .status-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+  .status-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
+  .status-pill.good { border-color: var(--green); color: var(--green); }
+  .status-pill.warn { border-color: var(--accent); color: var(--accent); }
+
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .section h2 { font-size: 1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+  .day-event { padding: 8px 10px; background: var(--bg); border-radius: 6px; margin-bottom: 4px; font-size: 0.85rem; }
+  .day-event .time { font-weight: 600; color: var(--accent); }
+
+  .rec-card { padding: 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px; position: relative; }
+  .rec-card .name { font-weight: 600; }
+  .rec-card .name a { color: var(--text); text-decoration: none; }
+  .rec-card .desc { font-size: 0.78rem; color: var(--dim); margin-top: 3px; }
+
+  .thumbs { display: flex; gap: 6px; margin-top: 6px; }
+  .thumbs button { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 3px 10px; cursor: pointer; font-size: 0.8rem; color: var(--dim); }
+  .thumbs button.voted-up { background: rgba(46,204,113,0.15); border-color: var(--green); color: var(--green); }
+  .thumbs button.voted-down { background: rgba(231,76,60,0.15); border-color: var(--red); color: var(--red); }
+
+  .tip { font-size: 0.82rem; padding: 8px 12px; background: rgba(52,152,219,0.08); border-radius: 8px; margin-bottom: 6px; }
+  .tip strong { color: var(--blue); }
+  .tip.warn { background: rgba(255,106,0,0.08); }
+  .tip.warn strong { color: var(--accent); }
+  .tip.vicky { background: rgba(255,106,0,0.06); border-left: 3px solid var(--accent); }
+  .tip.vicky strong { color: var(--accent); }
+
+  .footer { text-align: center; font-size: 0.7rem; color: var(--dim); margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span style="font-size:2rem">🇮🇪</span>
+  <h1>Today in Dublin</h1>
+  <div class="sub">Metallica M72 Weekend · <span id="day-label">...</span></div>
+</div>
+
+<div class="status-bar" id="status-bar"></div>
+
+<div class="section">
+  <h2>🌤️ Weather</h2>
+  <div id="weather-card" style="text-align:center;font-size:1rem;font-weight:600">...</div>
+</div>
+
+<div class="section">
+  <h2>📋 Timeline</h2>
+  <div id="timeline"></div>
+</div>
+
+<div class="section">
+  <h2>🥩🍕 Quick Bites</h2>
+  <div id="meals"></div>
+</div>
+
+<div class="section">
+  <h2>☕ Coffee</h2>
+  <div id="coffee"></div>
+</div>
+
+<div id="transit-section" class="section" style="display:none">
+  <h2>🚊 Transit</h2>
+  <div id="transit"></div>
+</div>
+
+<div class="section">
+  <h2>💡 Vicky's Tip</h2>
+  <div class="tip vicky" id="vicky-tip"></div>
+</div>
+
+<div class="footer">
+  <a href="https://jarvisdanley.github.io/dublin-m72/">📍 Full Briefing</a> · <a href="https://jarvisdanley.github.io/">🏠 Arrivals Hall</a>
+</div>
+
+<script>
+const TRIP = {
+  start: '2026-06-17T11:05:00-05:00',
+  end: '2026-06-22T23:35:00-05:00',
+  days: [
+    {
+      label: 'Wed Jun 17 · Travel Day',
+      weather: { high: '18°C / 64°F', low: '11°C / 52°F', cond: 'Periods of rain' },
+      pills: [{text:'✈️ Travel Day',cls:'warn'}],
+      timeline: [
+        {time:'9:00 AM CDT', text:'Leave for MCI'},
+        {time:'11:05 AM CDT', text:'WN 2563 → LGA (2h 45m)'},
+        {time:'2:50 PM EDT', text:'Land LGA, transfer to JFK'},
+        {time:'9:25 PM EDT', text:'DL 44 → Dublin (overnight, 6h 50m)'}
+      ],
+      meals: [
+        {name:'Breakfast at MCI',desc:'Grab something before boarding.'},
+        {name:'Dinner near JFK',desc:'Terminal 4 has solid options. Shake Shack, Blue Smoke.'}
+      ],
+      coffee: [
+        {name:'Your KC go-to',desc:'Start the trip right — one last KC coffee before wheels up.'}
+      ],
+      transit: [
+        'LGA→JFK transfer (~45 min taxi/rideshare). Separate airports.',
+        'Check bags through to DUB on DL 44 at JFK.'
+      ],
+      tip: 'Travel day. Hydrate, stretch at JFK, and get some sleep on that overnight to Dublin. You\'ll land Thursday morning Irish time — hit the ground running.'
+    },
+    {
+      label: 'Thu Jun 18 · Arrival + Takeover Kickoff',
+      weather: { high: '17°C / 63°F', low: '10°C / 50°F', cond: 'Light rain, clearing' },
+      pills: [{text:'🇮🇪 Arrival Day',cls:'good'},{text:'🎪 Takeover Begins',cls:'good'}],
+      timeline: [
+        {time:'9:15 AM IST', text:'Land Dublin. Bus 783 to Dean St.'},
+        {time:'11:00 AM', text:'Coffee @ Soren & Son (next door to hotel)'},
+        {time:'3:00 PM', text:'Hyatt Centric check-in'},
+        {time:'7:00 PM', text:'🎸 S.A.D. Metallica Tribute @ Lost Lane (€15–20)'},
+        {time:'8:30 AM–8 PM', text:'Pop-Up Shop open @ Convention Centre Dublin'}
+      ],
+      meals: [
+        {name:'Breakfast @ Soren & Son',desc:'Next door. V60 drip + Nordic pastries. 4.6★',link:'https://www.google.com/maps/search/Soren+%26+Son+Dublin+8'},
+        {name:'Lunch near hotel',desc:'Explore The Liberties. Groundstate Coffee has solid veggie/vegan brunch.',link:'https://www.google.com/maps/search/Groundstate+Coffee+Roasters+Dublin+8'},
+        {name:'Dinner near Lost Lane',desc:'Featherblade (25 min walk, 4.6★) or Bull & Castle (20 min, 4.7★)'}
+      ],
+      coffee: [
+        {name:'Soren & Son',desc:'1 Dean St. Next door. V60 drip, flat whites.',link:'https://www.google.com/maps/search/Soren+%26+Son+Dublin+8'},
+        {name:'Groundstate Coffee',desc:'James St. 12 min walk. Roastery + café. 4.7★.',link:'https://www.google.com/maps/search/Groundstate+Coffee+Roasters+Dublin+8'},
+        {name:'Legit Coffee Co',desc:'Meath St. 12 min walk. Brazilian-origin. 4.7★.',link:'https://www.google.com/maps/search/Legit+Coffee+Co+Dublin+8'}
+      ],
+      transit: [
+        'Airport → Hotel: Bus 783 stops on Dean St (€8–12). Or Dublin Express + taxi.',
+        'Hotel → Lost Lane: 15 min walk through Temple Bar.'
+      ],
+      tip: 'Arrival day. Don\'t overdo it — you\'ll be jet-lagged. Coffee at Soren, check in, light explore, then the S.A.D. tribute at Lost Lane to get in the Metallica spirit. Pop-Up Shop at Convention Centre is open until 8 PM if you want first dibs on exclusive merch.'
+    },
+    {
+      label: 'Fri Jun 19 · Metallica Night 1 🎸',
+      weather: { high: '17°C / 63°F', low: '9°C / 48°F', cond: 'Scattered showers' },
+      pills: [{text:'🎸 NIGHT 1',cls:'good'},{text:'Pantera + Avatar',cls:'good'}],
+      timeline: [
+        {time:'Morning', text:'Record store crawl: Spindizzy, All City, R.A.G.E., Golden Discs'},
+        {time:'11:00 AM', text:'Coffee + explore Temple Bar'},
+        {time:'1:30 PM', text:'Metallica DJ @ The Foggy Dew (warmup)'},
+        {time:'4:00 PM', text:'Head to Aviva — DART from Tara St to Lansdowne Rd'},
+        {time:'5:00 PM', text:'DOORS @ Aviva Stadium'},
+        {time:'Evening', text:'Pantera → Avatar → METALLICA'},
+        {time:'9:00 PM', text:'Master of Pulpits tribute @ Fibber Magees (FREE)'},
+        {time:'10:30 PM', text:'Club Hell AfterShow @ O\'Reilly\'s (€11.70)'}
+      ],
+      meals: [
+        {name:'Lunch near Aviva',desc:'The Lobster Pot (5 min walk, 4.7★) or Roly\'s Bistro (12 min walk, 4.5★)',link:'https://www.google.com/maps/search/The+Lobster+Pot+Dublin+4'},
+        {name:'Pre-show bite',desc:'Grab something light near Aviva before doors at 5 PM.'},
+        {name:'Post-show',desc:'Club Hell @ O\'Reilly\'s has food + DJ until 2:30 AM.'}
+      ],
+      coffee: [
+        {name:'Soren & Son',desc:'Morning coffee right downstairs.',link:'https://www.google.com/maps/search/Soren+%26+Son+Dublin+8'},
+        {name:'Legit Coffee Co',desc:'Meath St. French pastries, Brazilian coffee.',link:'https://www.google.com/maps/search/Legit+Coffee+Co+Dublin+8'}
+      ],
+      transit: [
+        'DART from Tara St or Pearse St → Lansdowne Rd Station (2 min from Aviva).',
+        'Post-show: DART runs late on event nights. Or Free Now taxi (~€15).'
+      ],
+      tip: 'Night 1 is going to be massive. Pantera + Avatar opening, then Metallica in the round. Snake Pit access means you\'re in the center of it all. After the show, you\'ve got Club Hell at O\'Reilly\'s (right next to Tara St DART — convenient!) and a free tribute at Fibber Magees. Don\'t try to do everything — pick one after-party and soak it in.'
+    },
+    {
+      label: 'Sat Jun 20 · Free Day + Fan Events',
+      weather: { high: '18°C / 64°F', low: '10°C / 50°F', cond: 'Partly cloudy' },
+      pills: [{text:'🗺️ Free Day',cls:'good'},{text:'🎸 Fan Events',cls:'good'}],
+      timeline: [
+        {time:'11:00 AM', text:'Explore: Guinness Storehouse (10 min walk) or Trinity College'},
+        {time:'12:00 PM', text:'Metal Market + DJ @ The Foggy Dew (official merch!)'},
+        {time:'2:00 PM', text:'🎸 Whiplash Tribute @ The Grand Social (ALL AGES)'},
+        {time:'7:00 PM', text:'🎸 S.A.D. Tribute Night 2 @ Lost Lane (€15–18)'},
+        {time:'All day', text:'Option: Howth Cliff Walk (DART, half-day escape)'}
+      ],
+      meals: [
+        {name:'Lunch',desc:'Featherblade on Dawson St (4.6★). 25 min walk, local steakhouse.',link:'https://www.google.com/maps/search/Featherblade+Dublin+2'},
+        {name:'Dinner',desc:'Bull & Castle overlooking Christchurch (4.7★, 20 min walk).',link:'https://www.google.com/maps/search/The+Bull+and+Castle+Dublin+2'},
+        {name:'Quick bite',desc:'Matt The Thresher (seafood, 4.6★) for something lighter.'}
+      ],
+      coffee: [
+        {name:'Groundstate Coffee',desc:'James St. 4.7★. Brunch + coffee roast on-site.',link:'https://www.google.com/maps/search/Groundstate+Coffee+Roasters+Dublin+8'},
+        {name:'Legit Coffee Co',desc:'Meath St. 4.7★. Irish Times featured.',link:'https://www.google.com/maps/search/Legit+Coffee+Co+Dublin+8'}
+      ],
+      transit: [
+        'Howth Cliff Walk: DART from Tara St to Howth (~30 min). Stunning coastal views.',
+        'Most events today are in Temple Bar/Dublin 2 — walkable from hotel.'
+      ],
+      tip: 'Saturday is your recharge day. The Whiplash tribute at 2 PM is ALL AGES — great if you want a day show. Metal Market at Foggy Dew has official Metallica merch plus local vendors. If the weather breaks, Howth is a stunning half-day escape — DART right along the coast. Save energy for Night 2 tomorrow.'
+    },
+    {
+      label: 'Sun Jun 21 · Metallica Night 2 🎸',
+      weather: { high: '18°C / 64°F', low: '10°C / 50°F', cond: 'Light rain possible' },
+      pills: [{text:'🎸 NIGHT 2',cls:'good'},{text:'Gojira + Knocked Loose',cls:'good'},{text:'🚨 Return Tomorrow',cls:'warn'}],
+      timeline: [
+        {time:'Morning', text:'Sleep in. Coffee at Soren. Pack a bit for tomorrow.'},
+        {time:'1:00 PM', text:'Sunday Roast Pre-Show @ O\'Reilly\'s (BBQ, beer garden, DJ)'},
+        {time:'2:00 PM', text:'DJ @ The Foggy Dew'},
+        {time:'4:00 PM', text:'DART to Lansdowne Rd'},
+        {time:'5:00 PM', text:'DOORS @ Aviva Stadium'},
+        {time:'Evening', text:'Gojira → Knocked Loose → METALLICA (totally different setlist)'},
+        {time:'9:00 PM', text:'Master of Pulpits tribute @ Fibber Magees (FREE)'},
+        {time:'10:30 PM', text:'Club Hell AfterShow @ O\'Reilly\'s (€11.70)'}
+      ],
+      meals: [
+        {name:'Pre-show BBQ',desc:'Sunday Roast @ O\'Reilly\'s Bar. BBQ + beer garden + DJ. Perfect pre-show fuel.',link:'https://maps.google.com/?q=O'Reilly's+Bar+Tara+St+Dublin'},
+        {name:'Dinner',desc:'Roly\'s Bistro near Aviva (4.5★, 12 min walk). Or Lobster Pot (5 min walk, 4.7★).'}
+      ],
+      coffee: [
+        {name:'Soren & Son',desc:'Your morning anchor. Right downstairs.',link:'https://www.google.com/maps/search/Soren+%26+Son+Dublin+8'},
+        {name:'Groundstate Coffee',desc:'James St. If you want a walk + brunch.',link:'https://www.google.com/maps/search/Groundstate+Coffee+Roasters+Dublin+8'}
+      ],
+      transit: [
+        '⚠️ Pack tonight for tomorrow\'s early departure.',
+        'DART to stadium same as Night 1. Post-show DART runs late.'
+      ],
+      tip: 'Final night. Gojira is face-meltingly good live, and the setlist will be completely different from Friday. Sunday Roast at O\'Reilly\'s is the move — BBQ and beers before the show. But remember: you leave TOMORROW. Pack tonight. The June 22 protest means you need to be out of the hotel by 10 AM sharp.'
+    },
+    {
+      label: 'Mon Jun 22 · Return 🚨',
+      weather: { high: '17°C / 63°F', low: '10°C / 50°F', cond: 'Overcast' },
+      pills: [{text:'✈️ Return',cls:'warn'},{text:'🚨 Protest Day',cls:'warn'}],
+      timeline: [
+        {time:'8:00 AM', text:'Pack + final check'},
+        {time:'9:00 AM', text:'Coffee @ Soren (last one!)'},
+        {time:'10:00 AM', text:'⚠️ MUST LEAVE HOTEL — beat protest staging'},
+        {time:'10:30 AM', text:'Bus 783 or taxi to DUB Airport'},
+        {time:'1:15 PM IST', text:'DL 45 → JFK (7h 40m)'},
+        {time:'3:55 PM EDT', text:'Land JFK, transfer to LGA'},
+        {time:'9:25 PM EDT', text:'WN 4946 → MCI'},
+        {time:'11:35 PM CDT', text:'Home'}
+      ],
+      meals: [
+        {name:'Breakfast',desc:'Hotel breakfast (included). Soren & Son for last Irish coffee.',link:'https://www.google.com/maps/search/Soren+%26+Son+Dublin+8'},
+        {name:'Lunch',desc:'DUB Airport. Terminal 1 has decent options.'},
+        {name:'Dinner',desc:'JFK Terminal 4 or LGA Terminal B during layover.'}
+      ],
+      coffee: [
+        {name:'Soren & Son',desc:'One for the road. Dean St.',link:'https://www.google.com/maps/search/Soren+%26+Son+Dublin+8'}
+      ],
+      transit: [
+        'Hotel → DUB: Bus 783 from Dean St area (direct). Taxi backup (~€30).',
+        '⚠️ Protest at 2 PM at Garden of Remembrance. O\'Connell St will close. Leave by 10 AM.',
+        'JFK→LGA transfer: ~45 min taxi. 4.5 hour window is comfortable.'
+      ],
+      tip: 'The protest changes everything. Normally you could linger for a late breakfast, but that Garden of Remembrance rally at 2 PM means O\'Connell St and surrounding transit will be disrupted from midday. You want to be through airport security by 11:30 AM — leave hotel by 10 AM. You\'re flying west so it\'s a long day — but you\'ll be home before midnight CDT. Worth it.'
+    }
+  ]
+};
+
+function getToday() {
+  const now = new Date();
+  const start = new Date(TRIP.start);
+  const end = new Date(TRIP.end);
+
+  if (now < start) {
+    // Pre-trip — show Day 1 preview
+    return { day: TRIP.days[0], index: 0, mode: 'preview' };
+  }
+
+  const dayMs = 86400000;
+  const elapsedDays = Math.floor((now - start) / dayMs);
+  const idx = Math.min(elapsedDays, TRIP.days.length - 1);
+
+  return { day: TRIP.days[idx], index: idx, mode: 'active' };
+}
+
+function render() {
+  const { day, mode } = getToday();
+
+  document.getElementById('day-label').textContent = day.label;
+
+  // Status pills
+  const sb = document.getElementById('status-bar');
+  sb.innerHTML = day.pills.map(p => `<span class="status-pill ${p.cls}">${p.text}</span>`).join('');
+
+  // Weather
+  document.getElementById('weather-card').innerHTML = `
+    <div style="font-size:1.8rem;font-weight:800;color:var(--accent)">${day.weather.high}</div>
+    <div style="font-size:0.85rem;color:var(--dim)">Low ${day.weather.low} · ${day.weather.cond}</div>
+  `;
+
+  // Timeline
+  document.getElementById('timeline').innerHTML = day.timeline.map(e =>
+    `<div class="day-event"><span class="time">${e.time}</span> ${e.text}</div>`
+  ).join('');
+
+  // Meals
+  document.getElementById('meals').innerHTML = day.meals.map((m,i) =>
+    `<div class="rec-card">
+      <div class="name">${m.link ? `<a href="${m.link}">${m.name}</a>` : m.name}</div>
+      <div class="desc">${m.desc}</div>
+    </div>`
+  ).join('');
+
+  // Coffee
+  document.getElementById('coffee').innerHTML = day.coffee.map((c,i) =>
+    `<div class="rec-card" data-feedback-id="today-coffee-${i}">
+      <div class="name">${c.link ? `<a href="${c.link}">${c.name}</a>` : c.name}</div>
+      <div class="desc">${c.desc}</div>
+      <div class="thumbs"><button onclick="vote('today-coffee-${i}','up',this)">👍</button><button onclick="vote('today-coffee-${i}','down',this)">👎</button></div>
+    </div>`
+  ).join('');
+
+  // Transit
+  const ts = document.getElementById('transit-section');
+  const tc = document.getElementById('transit');
+  if (day.transit && day.transit.length) {
+    ts.style.display = '';
+    tc.innerHTML = day.transit.map(t => `<div class="tip">${t}</div>`).join('');
+  } else {
+    ts.style.display = 'none';
+  }
+
+  // Vicky's tip
+  document.getElementById('vicky-tip').innerHTML = `<strong>🧠 Vicky:</strong> ${day.tip}`;
+}
+
+// Thumbs (same as index.html — shared localStorage keys)
+function vote(id, dir, btn) {
+  const key = 'atlas_vote_' + id;
+  let data;
+  try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e) { data = {}; }
+  const prev = data.voted;
+  const container = btn.parentElement;
+  const upBtn = container.children[0], downBtn = container.children[1];
+
+  if (prev === dir) {
+    data.voted = null;
+    upBtn.classList.remove('voted-up');
+    downBtn.classList.remove('voted-down');
+  } else {
+    data.voted = dir;
+    upBtn.classList.toggle('voted-up', dir === 'up');
+    downBtn.classList.toggle('voted-down', dir === 'down');
+  }
+  data[dir] = (data[dir] || 0) + (prev === dir ? -1 : 1);
+  if (prev && prev !== dir) data[prev] = Math.max(0, (data[prev] || 1) - 1);
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+(function() {
+  const els = document.querySelectorAll('.thumbs');
+  els.forEach(container => {
+    const id = container.parentElement.getAttribute('data-feedback-id');
+    if (!id) return;
+    try {
+      const data = JSON.parse(localStorage.getItem('atlas_vote_' + id));
+      if (data && data.voted) {
+        const upBtn = container.children[0], downBtn = container.children[1];
+        if (data.voted === 'up') upBtn.classList.add('voted-up');
+        else downBtn.classList.add('voted-down');
+      }
+    } catch(e) {}
+  });
+})();
+
+render();
+</script>
+
+</body>
+</html>
